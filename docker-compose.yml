@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+  webhook:
+    build: .
+    container_name: bitbucket-webhook
+    ports: 
+      - 8200:9000

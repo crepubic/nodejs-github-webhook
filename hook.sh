@@ -6,3 +6,4 @@ REPOSITORY="../repo"
 cd $REPOSITORY
 
 git pull
+git commit 
