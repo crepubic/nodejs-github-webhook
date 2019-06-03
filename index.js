@@ -2,9 +2,9 @@ var http    = require('http');
 var spawn   = require('child_process').spawn;
 var crypto  = require('crypto');
 var url     = require('url');
+require('dotenv').config();
 
-var secret  = 'amazingkey'; // secret key of the webhook
-var port    = 8081; // port
+var port = process.env.PORT; // port
 
 http.createServer(function(req, res){
     
@@ -18,21 +18,15 @@ http.createServer(function(req, res){
        return res.end(data); 
     }
 
-
     var jsonString = '';
     req.on('data', function(data){
         jsonString += data;
     });
 
     req.on('end', function(){
-      var hash = "sha1=" + crypto.createHmac('sha1', secret).update(jsonString).digest('hex');
-      if(hash != req.headers['x-hub-signature']){
-          console.log('invalid key');
-          var data = JSON.stringify({"error": "invalid key", key: hash});
-          return res.end(data);
-      } 
-       
-      console.log("running hook.sh");
+      console.log("running hook.sh", {
+        req
+      });
    
       var deploySh = spawn('sh', ['hook.sh']);
       deploySh.stdout.on('data', function(data){
@@ -40,15 +34,12 @@ http.createServer(function(req, res){
           console.log(buff.toString('utf-8'));
       });
 
-      
     res.writeHead(400, {"Content-Type": "application/json"});
     
     var data = JSON.stringify({"success": true});
       return res.end(data);
  
     });
-
-    
 }).listen(port);
 
 console.log("Server listening at " + port);
